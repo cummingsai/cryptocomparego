@@ -2,17 +2,19 @@ package cryptocomparego
 
 import (
 	"fmt"
-	"github.com/pkg/errors"
 	"net/http"
 	"net/url"
 	"strconv"
 
+	"github.com/pkg/errors"
+
 	"bytes"
 	"encoding/json"
-	"github.com/lucazulian/cryptocomparego/context"
 	"io"
 	"io/ioutil"
 	"time"
+
+	"github.com/cummingsai/cryptocomparego/context"
 )
 
 const (

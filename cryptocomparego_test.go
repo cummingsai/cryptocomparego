@@ -7,7 +7,7 @@ import (
 	"reflect"
 	"testing"
 
-	"github.com/lucazulian/cryptocomparego/context"
+	"github.com/cummingsai/cryptocomparego/context"
 )
 
 var (

@@ -10,15 +10,15 @@ import (
 	"net/url"
 	"reflect"
 
+	"github.com/cummingsai/cryptocomparego/context"
 	"github.com/google/go-querystring/query"
-	"github.com/lucazulian/cryptocomparego/context"
 )
 
 const (
-	libraryVersion = "0.1.0"
+	libraryVersion = "0.0.1"
 	defaultBaseURL = "https://www.cryptocompare.com/api/"
 	minBaseURL     = "https://min-api.cryptocompare.com/"
-	userAgent      = "cryptocomparego/" + libraryVersion
+	userAgent      = "cummingsai-cryptocomparego/" + libraryVersion
 	mediaType      = "application/json"
 )
 
@@ -28,6 +28,8 @@ type Client struct {
 	BaseURL *url.URL
 
 	MinURL *url.URL
+
+	ApiKey string
 
 	UserAgent string
 
@@ -89,7 +91,7 @@ func addOptions(s string, opt interface{}) (string, error) {
 	return origURL.String(), nil
 }
 
-func NewClient(httpClient *http.Client) *Client {
+func NewClient(apiKey string, httpClient *http.Client) *Client {
 	if httpClient == nil {
 		httpClient = http.DefaultClient
 	}
@@ -112,8 +114,8 @@ func NewClient(httpClient *http.Client) *Client {
 
 type ClientOpt func(*Client) error
 
-func New(httpClient *http.Client, opts ...ClientOpt) (*Client, error) {
-	c := NewClient(httpClient)
+func New(apiKey string, httpClient *http.Client, opts ...ClientOpt) (*Client, error) {
+	c := NewClient(apiKey, httpClient)
 	for _, opt := range opts {
 		if err := opt(c); err != nil {
 			return nil, err
@@ -166,6 +168,7 @@ func (c *Client) NewRequest(ctx context.Context, method string, baseUrl url.URL,
 	req.Header.Add("Content-Type", mediaType)
 	req.Header.Add("Accept", mediaType)
 	req.Header.Add("User-Agent", c.UserAgent)
+	req.Header.Add("Authorization", "Apikey "+c.ApiKey)
 	return req, nil
 }
 

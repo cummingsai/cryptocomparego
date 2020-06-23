@@ -4,7 +4,7 @@ import (
 	"net/http"
 	"sort"
 
-	"github.com/lucazulian/cryptocomparego/context"
+	"github.com/cummingsai/cryptocomparego/context"
 )
 
 const (

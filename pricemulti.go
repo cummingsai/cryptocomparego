@@ -9,7 +9,7 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/lucazulian/cryptocomparego/context"
+	"github.com/cummingsai/cryptocomparego/context"
 )
 
 const (

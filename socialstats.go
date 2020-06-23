@@ -6,7 +6,7 @@ import (
 	"net/url"
 	"strconv"
 
-	"github.com/lucazulian/cryptocomparego/context"
+	"github.com/cummingsai/cryptocomparego/context"
 )
 
 const (

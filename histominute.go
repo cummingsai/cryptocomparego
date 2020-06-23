@@ -6,14 +6,13 @@ import (
 	"io/ioutil"
 	"net/http"
 	"net/url"
-	"strconv"
 
-	"github.com/lucazulian/cryptocomparego/context"
+	"github.com/cummingsai/cryptocomparego/context"
 	"github.com/pkg/errors"
 )
 
 const (
-	histominuteBasePath = "data/histominute"
+	histominuteBasePath = "data/histo/minute/daily"
 )
 
 // Get the history kline data of any cryptocurrency in any other currency that you need.
@@ -50,31 +49,16 @@ type Histominute struct {
 }
 
 type HistominuteRequest struct {
-	Fsym          string
-	Tsym          string
-	E             string
-	ExtraParams   string
-	Sign          bool
-	TryConversion bool
-	Aggregate     int // Not Used For Now
-	Limit         int
-	ToTs          int64
+	Fsym string
+	Tsym string
+	E    string
+	Date string
 }
 
-func NewHistominuteRequest(fsym string, tsym string, limitMinutes int, fromTime int64) *HistominuteRequest {
+func NewHistominuteRequest(fsym string, tsym string, date string) *HistominuteRequest {
 	pr := HistominuteRequest{Fsym: fsym, Tsym: tsym}
 	pr.E = "CCCAGG"
-	pr.Sign = false
-	pr.TryConversion = true
-	pr.Aggregate = 1
-	if limitMinutes < 1 {
-		limitMinutes = 1
-	}
-	if limitMinutes > 2000 {
-		limitMinutes = 2000
-	}
-	pr.Limit = limitMinutes
-	pr.ToTs = fromTime
+	pr.Date = date
 	return &pr
 }
 
@@ -92,16 +76,8 @@ func (hr *HistominuteRequest) FormattedQueryString(baseUrl string) string {
 	if len(hr.E) > 0 {
 		values.Add("e", hr.E)
 	}
-
-	if len(hr.ExtraParams) > 0 {
-		values.Add("extraParams", hr.ExtraParams)
-	}
-
-	values.Add("sign", strconv.FormatBool(hr.Sign))
-	values.Add("tryConversion", strconv.FormatBool(hr.TryConversion))
-	values.Add("limit", strconv.FormatInt(int64(hr.Limit), 10))
-	if hr.ToTs >= 0 {
-		values.Add("toTs", strconv.FormatInt(int64(hr.ToTs), 10))
+	if len(hr.Date) > 0 {
+		values.Add("date", hr.Date)
 	}
 
 	return fmt.Sprintf("%s?%s", baseUrl, values.Encode())
@@ -114,10 +90,9 @@ func (s *HistominuteServiceOp) Get(ctx context.Context, histominuteRequest *Hist
 	if histominuteRequest != nil {
 		path = histominuteRequest.FormattedQueryString(histominuteBasePath)
 	}
-
 	reqUrl := fmt.Sprintf("%s%s", s.client.MinURL.String(), path)
-	fmt.Println(reqUrl)
-	resp, err := http.Get(reqUrl)
+	fmt.Println(reqUrl + "&api_key=4a0867ab22e8806d04f9bf19a88c658d26d1fb7d4753a28536299a452f96f441")
+	resp, err := http.Get(reqUrl + "&api_key=" + s.client.ApiKey)
 	res := Response{}
 	res.Response = resp
 	if err != nil {

@@ -3,7 +3,7 @@ package cryptocomparego
 import (
 	"net/http"
 
-	"github.com/lucazulian/cryptocomparego/context"
+	"github.com/cummingsai/cryptocomparego/context"
 )
 
 const (
