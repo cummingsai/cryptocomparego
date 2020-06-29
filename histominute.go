@@ -97,7 +97,6 @@ func (s *HistominuteServiceOp) Get(ctx context.Context, histominuteRequest *Hist
 		path = histominuteRequest.FormattedQueryString(histominuteBasePath)
 	}
 	reqUrl := fmt.Sprintf("%s%s", s.client.MinURL.String(), path)
-	fmt.Println(reqUrl + "&api_key=" + s.client.ApiKey)
 	resp, err := http.Get(reqUrl + "&api_key=" + s.client.ApiKey)
 	res := Response{}
 	res.Response = resp
