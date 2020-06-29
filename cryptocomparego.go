@@ -108,6 +108,7 @@ func NewClient(apiKey string, httpClient *http.Client) *Client {
 	c.SocialStats = &SocialStatsServiceOp{client: c}
 	c.Histoday = &HistodayServiceOp{client: c}
 	c.Histomin = &HistominuteServiceOp{client: c}
+	c.ApiKey = apiKey
 
 	return c
 }
