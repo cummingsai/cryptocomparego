@@ -1,7 +1,6 @@
 package cryptocomparego
 
 import (
-	"encoding/json"
 	"fmt"
 	"io/ioutil"
 	"net/http"
@@ -17,7 +16,7 @@ const (
 
 // Get the history kline data of any cryptocurrency in any other currency that you need.
 type HistominuteService interface {
-	Get(context.Context, *HistominuteRequest) (*HistominuteResponse, *Response, error)
+	Get(context.Context, *HistominuteRequest) (string, *Response, error)
 }
 
 type HistominuteServiceOp struct {
@@ -31,7 +30,7 @@ type HistominuteResponse struct {
 	Message           string         `json:"Message"` // Error Message
 	Type              int            `json:"Type"`
 	Aggregated        bool           `json:"Aggregated"`
-	Data              []Histominute  `json:"Data"`
+	Data              string         `json:"Data"`
 	TimeTo            int64          `json:"TimeTo"`
 	TimeFrom          int64          `json:"TimeFrom"`
 	FirstValueInArray bool           `json:"FirstValueInArray"`
@@ -40,12 +39,14 @@ type HistominuteResponse struct {
 
 type Histominute struct {
 	Time       int64   `json:"time"`
+	From       string  `json:"fromsymbol"`
+	To         string  `json:"tosymbol"`
 	Close      float64 `json:"close"`
 	High       float64 `json:"high"`
 	Low        float64 `json:"low"`
 	Open       float64 `json:"open"`
-	VolumeFrom float64 `json:"volumefrom"`
-	VolumeTo   float64 `json:"volumeto"`
+	VolumeFrom float64 `json:"volume_from"`
+	VolumeTo   float64 `json:"volume_to"`
 }
 
 type HistominuteRequest struct {
@@ -55,9 +56,14 @@ type HistominuteRequest struct {
 	Date string
 }
 
-func NewHistominuteRequest(fsym string, tsym string, date string) *HistominuteRequest {
+func NewHistominuteRequest(fsym string, tsym string, date string, exchange string) *HistominuteRequest {
 	pr := HistominuteRequest{Fsym: fsym, Tsym: tsym}
-	pr.E = "CCCAGG"
+	if exchange != "" {
+		pr.E = exchange
+	} else {
+		pr.E = "CCCAGG"
+	}
+
 	pr.Date = date
 	return &pr
 }
@@ -83,7 +89,7 @@ func (hr *HistominuteRequest) FormattedQueryString(baseUrl string) string {
 	return fmt.Sprintf("%s?%s", baseUrl, values.Encode())
 }
 
-func (s *HistominuteServiceOp) Get(ctx context.Context, histominuteRequest *HistominuteRequest) (*HistominuteResponse, *Response, error) {
+func (s *HistominuteServiceOp) Get(ctx context.Context, histominuteRequest *HistominuteRequest) (string, *Response, error) {
 
 	path := histodyBasePath
 
@@ -91,24 +97,23 @@ func (s *HistominuteServiceOp) Get(ctx context.Context, histominuteRequest *Hist
 		path = histominuteRequest.FormattedQueryString(histominuteBasePath)
 	}
 	reqUrl := fmt.Sprintf("%s%s", s.client.MinURL.String(), path)
-	fmt.Println(reqUrl + "&api_key=" + s.client.ApiKey)
 	resp, err := http.Get(reqUrl + "&api_key=" + s.client.ApiKey)
 	res := Response{}
 	res.Response = resp
 	if err != nil {
-		return nil, &res, err
+		return "", &res, err
 	}
 	defer func() { resp.Body.Close() }()
 
 	buf, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
-		return nil, &res, err
+		return "", &res, err
 	}
 	if len(buf) <= 0 {
-		return nil, &res, errors.New("Empty response")
+		return "", &res, errors.New("Empty response")
 	}
-
-	hr := HistominuteResponse{}
+	return string(buf), nil, nil
+	/*hr := HistominuteResponse{}
 	err = json.Unmarshal(buf, &hr)
 	if err != nil {
 		return nil, &res, errors.Wrap(err, fmt.Sprintf("JSON Unmarshal error, raw string is '%s'", string(buf)))
@@ -118,4 +123,5 @@ func (s *HistominuteServiceOp) Get(ctx context.Context, histominuteRequest *Hist
 	}
 
 	return &hr, &res, nil
+	*/
 }

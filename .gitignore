@@ -12,3 +12,6 @@
 
 .idea/
 example/*
+example
+/example/histominute/histominute_example.go
+/example/coin/coin_example.go
